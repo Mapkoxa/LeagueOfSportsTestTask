@@ -14,29 +14,42 @@ namespace LeagueOfSportsTestTask.Controllers
     public class FilmsController : Controller
     {
         private ProjectContext db = new ProjectContext();
-
-        // GET: Films
-        public ActionResult Index()
+        
+        public ActionResult Index(int page = 1)
         {
-            return View(db.Films.ToList());
-        }
+            if (Session["user"] == null)
+            {
+                return RedirectToAction("Index","Home");
+            }
 
-        // GET: Films/Details/5
+            int idUser = ((User) Session["user"]).Id;
+            int pageSize = 5;
+            List<Film> films = db.Films
+                .Where(a=>a.IdUser==idUser)
+                .OrderBy(a => a.Id)
+                .Skip((page - 1) * pageSize)
+                .Include("FilmType")
+                .Take(pageSize).ToList();
+            films.ForEach(a => a.Description = a.Description.Length >= 50 ? a.Description.Remove(50) + "..." : a.Description);
+            PagerInfo pageInfo = new PagerInfo { PageNumber = page, PageSize = pageSize, TotalItems = db.Films.Count() };
+            PaginationModel<Film> ivm = new PaginationModel<Film> { PagerInfo = pageInfo, Objects = films };
+            return View(ivm);
+        }
+        
         public ActionResult Details(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Film film = db.Films.Find(id);
+            Film film = db.Films.Include("FilmType").FirstOrDefault(a=>a.Id==id);
             if (film == null)
             {
                 return HttpNotFound();
             }
             return View(film);
         }
-
-        // GET: Films/Create
+        
         public ActionResult Create()
         {
             if (Session["user"] == null) return RedirectToAction("Index", "Home");
@@ -47,7 +60,7 @@ namespace LeagueOfSportsTestTask.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "IdFilmType,Title,Description,Creator,CreatedDate,PosterFile")] Film film)
+        public ActionResult Create([Bind(Include = "IdFilmType,Title,Description,Creator,CreatedYear")] Film film)
         {
             film.IdUser = ((User) Session["user"]).Id;
             if (ModelState.IsValid)
@@ -60,28 +73,27 @@ namespace LeagueOfSportsTestTask.Controllers
             ViewBag.FilmTypes = filmTypes;
             return View(film);
         }
-
-        // GET: Films/Edit/5
+        
         public ActionResult Edit(int? id)
         {
+            if (Session["user"] == null) return RedirectToAction("Index", "Home");
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Film film = db.Films.Find(id);
+            int idUser = ((User)Session["user"]).Id;
+            Film film = db.Films.FirstOrDefault(a => a.IdUser==idUser && a.Id==id);
             if (film == null)
             {
                 return HttpNotFound();
             }
+            SelectList filmTypes = new SelectList(db.FilmTypes, "id", "Name");
+            ViewBag.FilmTypes = filmTypes;
             return View(film);
         }
-
-        // POST: Films/Edit/5
-        // Чтобы защититься от атак чрезмерной передачи данных, включите определенные свойства, для которых следует установить привязку. Дополнительные 
-        // сведения см. в статье https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,IdUser,IdFilmType,Title,Description,Creator,CreatedDate,PosterFile")] Film film)
+        public ActionResult Edit([Bind(Include = "Id,IdUser,IdFilmType,Title,Description,Creator,CreatedYear")] Film film)
         {
             if (ModelState.IsValid)
             {
@@ -89,33 +101,9 @@ namespace LeagueOfSportsTestTask.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            SelectList filmTypes = new SelectList(db.FilmTypes, "id", "Name");
+            ViewBag.FilmTypes = filmTypes;
             return View(film);
-        }
-
-        // GET: Films/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Film film = db.Films.Find(id);
-            if (film == null)
-            {
-                return HttpNotFound();
-            }
-            return View(film);
-        }
-
-        // POST: Films/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Film film = db.Films.Find(id);
-            db.Films.Remove(film);
-            db.SaveChanges();
-            return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)

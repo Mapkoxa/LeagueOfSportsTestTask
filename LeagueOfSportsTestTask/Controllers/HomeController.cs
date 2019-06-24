@@ -15,7 +15,7 @@ namespace LeagueOfSportsTestTask.Controllers
         {
             using (var db = new ProjectContext())
             {
-                int pageSize = 20; // количество объектов на страницу
+                int pageSize = 5; // количество объектов на страницу
                 List<Film> films = db.Films.Include("FilmType").OrderBy(a=>a.Id).Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 films.ForEach(a => a.Description = a.Description.Length >= 50 ? a.Description.Remove(50) + "..." : a.Description);
                 PagerInfo pageInfo = new PagerInfo { PageNumber = page, PageSize = pageSize, TotalItems = db.Films.Count() };

@@ -1,70 +1,30 @@
-﻿@model IEnumerable<LeagueOfSportsTestTask.Models.Film>
-
+﻿@using LeagueOfSportsTestTask.Helpers
+@using LeagueOfSportsTestTask.Models
+@model LeagueOfSportsTestTask.Models.PaginationModel<LeagueOfSportsTestTask.Models.Film>
 @{
-    ViewBag.Title = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Добавленные фильмы";
 }
 
-<h2>Index</h2>
+<h2>Список фильмов добавленных пользователем</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.IdUser)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.IdFilmType)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Title)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Description)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Creator)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PosterFile)
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.IdUser)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.IdFilmType)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Creator)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CreatedDate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PosterFile)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
+@foreach (var item in Model.Objects)
+{
+    <div class="jumbotron">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>@Html.ActionLink(item.Title, "Details", "Films", new { id = item.Id }, null)</h4>
+                    <p>Год производства: @Html.DisplayFor(modelItem => item.CreatedYear)</p>
+                    <p>Жанр: @Html.DisplayFor(modelItem => item.FilmType.Name)</p>
+                    <p>Режиссер: @Html.DisplayFor(modelItem => item.Creator)</p>
+                    <p>Описание: @Html.DisplayFor(modelItem => item.Description)</p>
+                </div>
+            </div>   
+        </div>
+        @Html.ActionLink("Изменить", "Edit","Films", new { id = item.Id },new {@class="btn btn-default"})
+    </div>
 }
-
-</table>
+<hr />
+<div class="btn-group">
+    @Html.PageLinks(Model.PagerInfo, x => Url.Action("Index", new { page = x }))
+</div>

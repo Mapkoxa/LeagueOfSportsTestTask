@@ -18,5 +18,5 @@
 
 /* Set width on the form input elements since they're 100% wide by default */
 textarea {
-    height: 200px;
+    height: 200px!important;
 }

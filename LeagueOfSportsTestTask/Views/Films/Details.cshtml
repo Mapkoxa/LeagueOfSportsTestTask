@@ -1,30 +1,22 @@
-﻿@model LeagueOfSportsTestTask.Models.Film
+﻿@using LeagueOfSportsTestTask.Models
+@model LeagueOfSportsTestTask.Models.Film
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Информация о фильме";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Details</h2>
+<h2>Информация о фильме</h2>
 
 <div>
-    <h4>Film</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.IdUser)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IdUser)
-        </dd>
-
-        <dt>
+       <dt>
             @Html.DisplayNameFor(model => model.IdFilmType)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.IdFilmType)
+            @Html.DisplayFor(model => model.FilmType.Name)
         </dd>
 
         <dt>
@@ -52,24 +44,17 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.CreatedDate)
+            @Html.DisplayNameFor(model => model.CreatedYear)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.CreatedDate)
+            @Html.DisplayFor(model => model.CreatedYear)
         </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.PosterFile)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.PosterFile)
-        </dd>
-
     </dl>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+@if (Session["user"] != null && Model.IdUser == ((User) Session["user"]).Id)
+{
+    <p>
+        @Html.ActionLink("Изменить", "Edit", new {id = Model.Id}, new {@class = "btn btn-default"})
+    </p>
+}

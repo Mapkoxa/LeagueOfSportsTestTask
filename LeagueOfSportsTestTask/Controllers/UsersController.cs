@@ -14,7 +14,20 @@ namespace LeagueOfSportsTestTask.Controllers
     public class UsersController : Controller
     {
         private readonly ProjectContext _db = new ProjectContext();
-        
+
+
+        public JsonResult IsUserExists(string Login, int? Id)
+        {
+            var validateName = _db.Users.FirstOrDefault(x => x.Login == Login && x.Id != Id);
+            if (validateName != null)
+            {
+                return Json(false, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                return Json(true, JsonRequestBehavior.AllowGet);
+            }
+        }
         public ActionResult Register()
         {
             if (Session["user"] != null)
@@ -47,14 +60,12 @@ namespace LeagueOfSportsTestTask.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-            if (ModelState.IsValid)
+
+            var registerUser = _db.Users.FirstOrDefault(a => a.Login == user.Login && a.Password == user.Password);
+            if (registerUser != null)
             {
-                var registerUser = _db.Users.FirstOrDefault(a => a.Login == user.Login && a.Password == user.Password);
-                if (registerUser != null)
-                {
-                    Session["user"] = registerUser;
-                    return RedirectToAction("Index", "Home");
-                }
+                Session["user"] = registerUser;
+                return RedirectToAction("Index", "Home");
             }
 
             return View(user);
@@ -66,14 +77,14 @@ namespace LeagueOfSportsTestTask.Controllers
         {
             if (Session["user"] != null)
             {
-               return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Home");
             }
             if (ModelState.IsValid)
             {
                 _db.Users.Add(user);
                 _db.SaveChanges();
                 Session["user"] = user;
-                return RedirectToAction("Index","Home");
+                return RedirectToAction("Index", "Home");
             }
 
             return View(user);
