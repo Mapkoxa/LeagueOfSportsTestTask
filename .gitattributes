@@ -63,3 +63,4 @@
 #*.RTF   diff=astextplain
 
 *.js linguist-detectable=false
+*.xml linguist-detectable=false
